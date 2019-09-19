@@ -10,9 +10,14 @@ import redis.clients.jedis.JedisPool;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Component  
 @RabbitListener(queues = "refresh-aggr-data-change-queue")  
-public class RefreshAggrDataChangeQueueReceiver {  
+public class RefreshAggrDataChangeQueueReceiver {
+
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	@Autowired
 	private JedisPool jedisPool;
@@ -103,6 +108,12 @@ public class RefreshAggrDataChangeQueueReceiver {
     		if(productSpecificationDataJSON != null && !"".equals(productSpecificationDataJSON)) {
     			productDataJSONObject.put("product_specification", JSONObject.parse(productSpecificationDataJSON));
     		}
+
+			try {
+				productDataJSONObject.put("modified_time", sdf.parse(new Date().toString()));
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
     		
     		jedis.set("dim_product_" + id, productDataJSONObject.toJSONString());
     	} else {

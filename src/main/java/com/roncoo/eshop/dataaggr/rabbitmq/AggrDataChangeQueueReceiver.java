@@ -8,11 +8,15 @@ import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Component
 @RabbitListener(queues = "aggr-data-change-queue")
 public class AggrDataChangeQueueReceiver {
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Autowired
     private JedisPool jedisPool;
@@ -104,6 +108,12 @@ public class AggrDataChangeQueueReceiver {
             String productSpecificationDataJSON = results.get(2);
             if(productSpecificationDataJSON != null && !"".equals(productSpecificationDataJSON)) {
                 productDataJSONObject.put("product_specification", JSONObject.parse(productSpecificationDataJSON));
+            }
+
+            try {
+                productDataJSONObject.put("modified_time", sdf.format(new Date()));
+            }catch (Exception e) {
+                e.printStackTrace();
             }
 
             jedis.set("dim_product_" + id, productDataJSONObject.toJSONString());

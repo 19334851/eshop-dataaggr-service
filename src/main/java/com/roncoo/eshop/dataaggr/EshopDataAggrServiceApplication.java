@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Bean;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @SpringBootApplication
 @EnableEurekaClient
 public class EshopDataAggrServiceApplication {
